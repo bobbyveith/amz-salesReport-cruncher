@@ -42,7 +42,7 @@ columns_to_drop = [
     'Sessions - Total', 'Sessions - Total - B2B', 'Session Percentage - Total', 'Session Percentage - Total - B2B', 'Page Views - Total',
     'Page Views - Total - B2B', 'Page Views Percentage - Total', 'Page Views Percentage - Total - B2B', 'Featured Offer (Buy Box) Percentage',
     'Featured Offer (Buy Box) Percentage - B2B', 'Unit Session Percentage', 'Unit Session Percentage - B2B', 'Title', 'Total Order Items',
-    'Total Order Items - B2B', 'Units Ordered', 'Units Ordered - B2B', 'Ordered Product Sales', 'Ordered Product Sales - B2B'
+    'Total Order Items - B2B', 'Units Ordered', 'Units Ordered - B2B', 'Ordered Product Sales', 'Ordered Product Sales - B2B', '(Parent) ASIN'
 ]
 
 # Drop unwanted columns
@@ -77,6 +77,51 @@ full_df = pd.merge(sales_df, sku_df, on="(Child) ASIN", how='outer')
 full_df.to_csv("./full.csv", index=False)
 
 def row_to_product(row) -> Product:
+    def filter_product(row):
+        bad_asins = {
+                "B0BPJS1WL3": None,
+                "B0BPJRX5JZ": None,
+                "B09HSNYHV4": None,
+                "B09HSNVPZ5": None,
+                "B09HSQ37R7": None,
+                "B09X1DR2RW": None,
+                "B09HSPHG4M": None,
+                "B09HSPHWC8": None,
+                "B09HSN2ZM3": None,
+                "B09HSQL58F": None,
+                "B0BPJLXGYV": None,
+                "B0BPKRWRCW": None,
+                "B0BPJXX3WV": None,
+                "B0BPJJLMHK": None,
+                "B0BQ19FVHS": None,
+                "B0BQ1DMV33": None,
+                "B0BQ1YYZF5": None,
+                "B08NXZVV47": None,
+                "B08NXYKN9W": None,
+                "B08NXZXNY1": None,
+                "B08NY26NMB": None,
+                "B08NY41M7K": None,
+                "B0BQ26DD69": None,
+                "B0BQRX3RWB": None,
+                "B000EIDV7W": None,
+                "B00OW8GLRM": None,
+                "B0BPJVG893": None,
+                "B00OW8GLRM": None,
+                "B003HLAX6U": None,
+                "B003HLAX6U": None,
+                "B000EIDV7W": None,
+                "B000GCGB8M": None
+            }
+
+        if row.get('Units Sold') == 0 or row.get('(Child) ASIN') in bad_asins:
+            return True
+        return False
+    
+
+    # Check for the criteria to exclude certain records
+    if filter_product(row):
+        return None
+    
     return Product(
         parent_asin=row.get('(Parent) ASIN'),
         child_asin=row.get('(Child) ASIN'),
@@ -92,10 +137,18 @@ def row_to_product(row) -> Product:
 products = full_df.apply(lambda row: row_to_product(row), axis=1)
 
 # Convert to list of Product objects
-product_list = products.tolist()
+product_list = [product for product in products.tolist() if product is not None] 
 
-counter = 0
+prefixes = ('F1', 'F2', 'F3', 'T1', 'T2', 'T3', 'O1', 'O2', 'O3', 'O4', 'P1', 'P2', 'P3')
+
 for product in product_list:
-    counter +=1
-print(counter)
+    if product.sku.startswith(prefixes):
+        prefix, suffix = product.sku.split('-')
+        product.prefix = prefix
+        product.suffix = suffix
+    
+
+
+
+
 #Transfrom Data
