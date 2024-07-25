@@ -1,5 +1,8 @@
 import pandas as pd
 from classes import Product
+from dataclasses import asdict
+from typing import List
+import csv #TODO delte this
 
 #Ingest AMZ Report CSV & convert to dataframe
 AMAZON_REPORT = "./Sales Report.csv"
@@ -19,7 +22,7 @@ def convert_to_float(price_str):
         # Handle unexpected types (e.g., NaN)
         return 0.0
 
-
+# Report containing all sales data
 sales_df = pd.read_csv(AMAZON_REPORT)
 # Convert columns to string to ensure proper formatting handling
 sales_df['Units Ordered'] = sales_df['Units Ordered'].astype(str)
@@ -50,7 +53,7 @@ sales_df.drop(columns=columns_to_drop, inplace=True)
 
 
 
-# Get Listing Data and Drop unwanted columns
+# Get Product Listing Data and Drop unwanted columns
 sku_df = pd.read_csv(ALL_LISTINGS_REPORT, delimiter='\t')
 # Rename columns to match with sales_df for merge actions
 sku_df.rename(columns={'asin1': '(Child) ASIN', 'item-name': 'Title'}, inplace=True)
@@ -113,25 +116,31 @@ def row_to_product(row) -> Product:
                 "B000GCGB8M": None
             }
 
-        if row.get('Units Sold') == 0 or row.get('(Child) ASIN') in bad_asins:
+        if pd.isna(row.get('Units Sold')) or row.get('Units Sold') == 0.0 or row.get('(Child) ASIN') in bad_asins:
             return True
         return False
     
+    def get_modified_sku(sku):
+        if sku.startswith('FBA-'):
+            sku = sku.replace('FBA-', '')
+        return sku
 
     # Check for the criteria to exclude certain records
     if filter_product(row):
         return None
     
-    return Product(
+    product_object =  Product(
         parent_asin=row.get('(Parent) ASIN'),
-        child_asin=row.get('(Child) ASIN'),
-        units_sold=row.get('Units Sold'),
-        total_sales=row.get('Total Sales'),
+        child_asin=get_modified_sku(row.get('(Child) ASIN')),
+        units_sold=row.get(('Units Sold')),
+        total_sales=row.get(('Total Sales')),
         sku=row.get('seller-sku'),
-        title=row.get('fulfillment-channel'),
+        title=row.get('Title'),
         is_fba=True if row.get('is_fba') == "AMAZON_NA" else False,
         is_active=True if row.get('status') == "Active" else False
-    )
+        )
+        
+    return product_object
 
 # Convert each row to a Product instance
 products = full_df.apply(lambda row: row_to_product(row), axis=1)
@@ -139,16 +148,39 @@ products = full_df.apply(lambda row: row_to_product(row), axis=1)
 # Convert to list of Product objects
 product_list = [product for product in products.tolist() if product is not None] 
 
-prefixes = ('F1', 'F2', 'F3', 'T1', 'T2', 'T3', 'O1', 'O2', 'O3', 'O4', 'P1', 'P2', 'P3')
+# Identify SKUs that start with these strings
+prefixes = ('F1', 'F2', 'F3', 'T1', 'T2', 'T3', 'O1', 'O2', 'O3', 'O4', 'P1', 'P2', 'P3', 'P9')
 
+# Parse SKU
 for product in product_list:
     if product.sku.startswith(prefixes):
-        prefix, suffix = product.sku.split('-')
+        prefix, suffix = product.sku.split('-', 1)
         product.prefix = prefix
         product.suffix = suffix
-    
+
+def create_product_objects(product_list: List[Product]) -> List[dict]:
+    # Dictionary of product dicts where objects that have the same ASIN are combined in Units Sold and Total Sales
+    seen_products = {}
+    for product in product_list:
+        if product.child_asin not in seen_products:
+            seen_products[product.child_asin] = asdict(product)
+        else:
+            float_keys = ['units_sold', 'total_sales']
+            for key in float_keys:
+                seen_products[product.child_asin][key] += asdict(product)[key]
+
+    product_dicts = list(seen_products.values())
+    return product_dicts
 
 
+# Convert Product objects to dictionaries
+product_dicts = create_product_objects(product_list)
 
+# Get the header from the keys of the first product dictionary
+header = product_dicts[0].keys()
 
-#Transfrom Data
+# Write the product dictionaries to a CSV file
+with open('products.csv', 'w', newline='') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=header)
+    writer.writeheader()
+    writer.writerows(product_dicts)

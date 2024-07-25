@@ -8,6 +8,8 @@ class Product:
     units_sold: Optional[float] = None
     total_sales: Optional[float] = None
     sku: Optional[str] = None
+    prefix: Optional[str] = None
+    suffix: Optional[str] = None
     title: Optional[str] = None
     is_fba: Optional[bool] = None
     is_active: Optional[bool] = None
