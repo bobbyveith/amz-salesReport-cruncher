@@ -14,3 +14,5 @@ class Product:
     is_fba: Optional[bool] = None
     is_active: Optional[bool] = None
 
+if __name__ == "__main__":
+    print("[X] Warning: This module is not meant to be run directly!")
