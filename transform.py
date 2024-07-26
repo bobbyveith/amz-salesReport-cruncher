@@ -3,11 +3,17 @@ from typing import List
 from dataclasses import asdict
 import pandas as pd
 
+# Local Modules
+import utils
 
 
-def combine_data(sales_df, sku_df):
+
+def combine_data(TEST_MODE, sales_df, sku_df):
     # Combine data from sales_df and sku_df based on child ASIN
     full_df = pd.merge(sales_df, sku_df, on="(Child) ASIN", how='outer')
+
+    if TEST_MODE:
+        full_df.to_csv("./test_outputs/full.csv", index=False)
 
     return full_df
 
@@ -131,19 +137,23 @@ def generate_list_of_product_objects(full_df):
         if product is not None:
             product_list.append(product)
 
-    reduced_product_list = reduce_likeable_data(product_list)
+    #reduced_product_list = reduce_likeable_data(product_list)
 
-    return reduced_product_list
-
-
+    return product_list
 
 
-def list_products(full_df):
+
+
+def list_products(full_df, TEST_MODE):
     # Convert Product objects to dictionaries
     list_of_products = generate_list_of_product_objects(full_df)
-    product_dicts = list(list_of_products.values())
 
-    return product_dicts
+    if TEST_MODE:   
+        # Convert list of Product objects to list of dictionaries
+        product_dicts = [asdict(product) for product in list_of_products]
+        utils.create_testing_output(product_dicts)
+
+    return list_of_products
 
 if __name__ == "__main__":
     print("[X] Warning: This module is not meant to be run directly!")

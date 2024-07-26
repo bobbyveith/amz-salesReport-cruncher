@@ -47,7 +47,17 @@ def render_sales_df(sales_report):
 
     # Drop unwanted columns
     sales_df.drop(columns=columns_to_drop, inplace=True)
-    return sales_df
+
+
+    # Define aggregation functions
+    aggregation_functions = {
+        'Units Sold': 'sum',
+        'Total Sales': 'sum',
+    }
+    # Group by '(Child) ASIN' and apply aggregation
+    aggregated_df = sales_df.groupby('(Child) ASIN', as_index=False).agg(aggregation_functions)
+
+    return aggregated_df
 
 
 

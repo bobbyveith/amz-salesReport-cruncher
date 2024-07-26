@@ -1,11 +1,10 @@
 from typing import List, Dict, Tuple
-from classes import Product
 import pandas as pd
 
 
 # CreateSales by Prefix
 
-def aggregate_sales_data(product_list: List[Product]) -> Tuple[Dict[str, Dict[str, float]], Dict[str, Dict[str, float]]]:
+def aggregate_sales_data(product_list: List[Dict]) -> Tuple[Dict[str, Dict[str, float]], Dict[str, Dict[str, float]]]:
     """
     This function aggregates sales data from a list of Product objects into two dictionaries:
     one for sales data grouped by SKU prefix and one for sales data grouped by SKU suffix.
@@ -73,11 +72,11 @@ def write_dicts_to_xlsx(data: Tuple[Dict, Dict]):
         df_suffix.to_excel(writer, sheet_name='Sales by Suffix')
 
 
-def render_sales_data(product_list, test_mode):
+def render_sales_data(product_list, TEST_MODE):
     aggrigated_data = aggregate_sales_data(product_list)
     write_dicts_to_xlsx(aggrigated_data)
 
-    if test_mode:
+    if TEST_MODE:
         return True
     raise RuntimeError("[X] Warning: System run on dev mode")
     
