@@ -11,6 +11,7 @@ class Product:
     prefix: Optional[str] = None
     suffix: Optional[str] = None
     title: Optional[str] = None
+    aspect_ratio: Optional[str] = None
     is_fba: Optional[bool] = None
     is_active: Optional[bool] = None
 

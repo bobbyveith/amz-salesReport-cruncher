@@ -49,6 +49,34 @@ def row_to_product_object(row) -> Product:
         if sku.startswith('FBA-'):
             sku = sku.replace('FBA-', '')
         return sku
+    
+    def get_aspect_ratio(sku):
+
+        aspect_ratio_mapping = {
+            'F1': '4x3',
+            'F2': '4x3',
+            'F3': '4x3',
+            'T1': '2x3',
+            'T2': '2x3',
+            'T3': '2x3',
+            'O1': '1x1',
+            'O2': '1x1',
+            'O3': '1x1',
+            'O4': '1x1',
+            'P1': '4x3',
+            'P2': '2x3',
+            'P3': '1x1',
+            'P9': '4x3'
+        }
+
+        sku_head = sku[:2]
+
+        if sku_head in aspect_ratio_mapping:
+            aspect_ratio = aspect_ratio_mapping[sku_head]
+        else:
+            aspect_ratio = None
+
+        return aspect_ratio
 
     # Check for the criteria to exclude certain records
     if filter_product(row):
@@ -61,6 +89,7 @@ def row_to_product_object(row) -> Product:
         total_sales=row.get(('Total Sales')),
         sku=get_sku(row.get('seller-sku')),
         title=row.get('Title'),
+        aspect_ratio=None,
         is_fba=True if row.get('is_fba') == "AMAZON_NA" else False,
         is_active=True if row.get('status') == "Active" else False
         )
@@ -69,6 +98,7 @@ def row_to_product_object(row) -> Product:
     prefix, suffix = product_object.sku.split('-', 1)
     product_object.prefix = prefix
     product_object.suffix = suffix
+    product_object.aspect_ratio = get_aspect_ratio(product_object.sku)
         
     return product_object
 
