@@ -1,0 +1,18 @@
+================== Orientation =================
+
+This an ETL process. The program takes the Amazon sales report and transfroms the data to represent sales by Prefix and Suffix. 
+The sales report doesn't provide product SKUs, so we get those from the All Listings Report and match (merge) the data together via the Child Sku.
+
+--Inputs--
+Sales Report: CSV - includes the units sold and total $ sales for each product which is represented by a Child ASIN.
+All Listings Report: .txt - List of products on the amazon account, it provides the item SKU that correlates with each Child ASIN.
+
+--Outputs--
+full.csv - This is the full_df created by the program exported to a csv for easy review. Meant to be used just for test and dev.
+            The sales Report and All Listings Report get outer joined on the Child ASIN column, and unwanted columns are dropped.
+            This results in the full_df which is the finale of the 'extraction' part of the program. It represents all the input data correcly.
+
+products.csv - This is meant to be used for test and dev only. Every record from the full_df gets initiated into the Product Class.
+                Every object from the class has attributes derived from the full_df, and having it as a class object allows us to easily
+                tranform the data as needed, and later represent the same data easily in different ways. 
+                Every record in this csv is the representation of an object from the Product Class. 

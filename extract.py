@@ -66,8 +66,6 @@ def render_sku_df(all_listings_report):
     pd.set_option('display.width', 1000)  # Set display width
     pd.set_option('display.max_colwidth', 500)  # No limit on column width
 
-    #print(sales_df.head())
-    sku_df.to_csv("./test.csv", index=False)
     
     return sku_df
 
