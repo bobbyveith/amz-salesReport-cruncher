@@ -71,3 +71,15 @@ def write_dicts_to_xlsx(data: Tuple[Dict, Dict]):
         # Write the DataFrames to separate sheets
         df_prefix.to_excel(writer, sheet_name='Sales by Prefix')
         df_suffix.to_excel(writer, sheet_name='Sales by Suffix')
+
+
+def render_sales_data(product_list, test_mode):
+    aggrigated_data = aggregate_sales_data(product_list)
+    write_dicts_to_xlsx(aggrigated_data)
+
+    if test_mode:
+        return True
+    raise RuntimeError("[X] Warning: System run on dev mode")
+    
+        
+    
