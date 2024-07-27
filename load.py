@@ -34,6 +34,7 @@ def aggregate_sales_data(product_list: List[Dict]) -> Tuple[Dict[str, Dict[str, 
 
         if product.suffix not in sales_by_suffix:
             sales_by_suffix[product.suffix] = {
+                'Suffix': product.suffix,
                 'Aspect Ratio': product.aspect_ratio,
                 'Product Name': product.title,
                 'Units Sold': product.units_sold,

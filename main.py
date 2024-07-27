@@ -14,6 +14,9 @@ LOCAL_RUN = True
 if TEST_MODE or LOCAL_RUN:
     AMAZON_REPORT = "./test_inputs/Sales Report.csv"
     ALL_LISTINGS_REPORT = "./test_inputs/All Listings Report.txt"
+else:
+    AMAZON_REPORT = input("Enter the path to the Sales Report: ")
+    ALL_LISTINGS_REPORT = input("Enter the path to the All Listings Report: ")
 
 
 def main():
