@@ -1,6 +1,40 @@
-import requests, json, os
+import requests, os
 from dotenv import load_dotenv
-import datetime
+
+
+def get_api_keys(store_ID):
+    """
+    Retrieve API keys from a .env file.
+
+    This function loads the environment variables from a .env file and retrieves the CLIENT_ID, CLIENT_SECRET, 
+    and REFFRESH_TOKEN required for API access. If there is an issue loading the environment variables, 
+    an exception is raised.
+
+    Parameters:
+    store_ID (str): The identifier for the store. (Currently not used in the function, but can be 
+                    utilized in future versions if needed.)
+
+    Returns:
+    tuple: A tuple containing three elements:
+        - client_id (str): The client ID for the API.
+        - client_secret (str): The client secret for the API.
+        - refresh_token (str): The refresh token for the API.
+
+    Raises:
+    Exception: If there is an error loading the environment variables.
+    """
+    load_dotenv()
+    try:
+        client_id = os.getenv("CLIENT_ID")
+        client_secret = os.getenv("CLIENT_SECRET")
+        refresh_token = os.getenv("REFFRESH_TOKEN")
+    
+
+    except Exception as e:
+        raise Exception 
+    
+    return client_id, client_secret, refresh_token
+
 
 def get_access_token(client_id, client_secret, refresh_token):
     '''
@@ -47,32 +81,15 @@ def get_access_token(client_id, client_secret, refresh_token):
 
     return access_token
 
-def get_order_info(orderID, access_token):
-    '''
-    Retrieves information about a specific order from the Amazon Selling Partner API.
-
-    Parameters:
-    - orderID (str): The unique identifier of the order.
-    - access_token (str): The access token used for authentication.
-
-    Returns:
-    - dict: A dictionary containing information about the order retrieved from the API.
-
-    Example:
-    getOrderInfo('your_order_id', 'your_access_token')
+def get_order_info( access_token):
     '''
 
-    # Parameter type error handling
-    if not isinstance(orderID, str) or not isinstance(access_token, str):
-        raise TypeError("OrderID and access_token must be of type str.")
-
+    '''
 
     #endpoint for used for getting orders
-    uri_endpoint = f'https://sellingpartnerapi-na.amazon.com/orders/v0/orders/'
-
-    #give the unique order number in the URL query
-    url = uri_endpoint + orderID
+    uri_endpoint = f''
     
+    url = ""
 
     headers = {
         'user-agent' : "Shipstation Automation/1.0 (Language=Python/3.11.6)",  
@@ -91,30 +108,19 @@ def get_order_info(orderID, access_token):
         #print(pretty_json)
 
     except Exception as e:
-        print("[X] Could not retrieve order info json")
+        print("[X] Could not retrieve data from Amazon")
         print(f"Error: {e}")
         response_json = None
 
     return response_json, response
 
-def get_api_keys(store_ID):
-    '''
 
-    '''
-    # Load API keys from .env file
-    load_dotenv()
-    try:
-        client_id = os.getenv("CLIENT_ID")
-        client_secret = os.getenv("CLIENT_SECRET")
-        refresh_token = os.getenv("REFFRESH_TOKEN")
+def fetch_amazon_data():
+    client_id, client_secret, refresh_token = get_api_keys()
+
+    access_token = get_access_token(client_id, client_secret, refresh_token)
+
     
-
-    except Exception as e:
-        raise Exception 
-    
-    return client_id, client_secret, refresh_token
-
-
 
 
 if __name__ == '__main__':
