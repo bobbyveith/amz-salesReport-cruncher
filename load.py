@@ -1,6 +1,23 @@
 from typing import List, Dict, Tuple
 import pandas as pd
+import os
+from pathlib import Path
 
+
+def get_desktop_path() -> Path:
+    """
+    Get the path to the user's Desktop directory.
+    
+    Returns:
+    Path: The path to the Desktop directory.
+    """
+    home = Path.home()
+    if os.name == 'nt':  # Windows
+        desktop = home / 'Desktop'
+    else:  # macOS and Unix-like systems
+        desktop = home / 'Desktop'
+    
+    return desktop
 
 # CreateSales by Prefix
 
@@ -60,7 +77,9 @@ def write_dicts_to_xlsx(data: Tuple[Dict, Dict]):
     filename (str): The name of the output xlsx file.
     """
     sales_by_prefix, sales_by_suffix = data
-    filename = './prod_output/sales_data.xlsx'
+    # Set filename to a path on the Desktop
+    desktop_path = get_desktop_path()
+    filename = desktop_path / 'sales_data.xlsx'
 
     # Create a Pandas Excel writer using Openpyxl as the engine
     with pd.ExcelWriter(filename, engine='openpyxl') as writer:
