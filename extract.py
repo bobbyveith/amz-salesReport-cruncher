@@ -1,4 +1,8 @@
 import pandas as pd
+import tkinter as tk
+from tkinter import filedialog
+
+import os
 
 
 
@@ -16,10 +20,31 @@ def convert_to_float(price_str):
         # Handle unexpected types (e.g., NaN)
         return 0.0
 
+def is_csv_file(file_path: str) -> bool:
+    '''
+    Check if the given file path is a CSV file.
+    
+    Parameters:
+    file_path (str): The file path to check.
+    
+    Returns:
+    bool: True if the file exists and has a .csv extension, False otherwise.
+    '''
+    # Check if file exists
+    if not os.path.isfile(file_path):
+        return False
 
+    # Check if file has a .csv extension
+    if not file_path.lower().endswith('.csv'):
+        return False
+
+    return True
 
 def render_sales_df(sales_report):
     # Report containing all sales data
+    if not is_csv_file(sales_report):
+        raise RuntimeError("[X] The Amazon Sales Report must be a CSV file!")
+    
     sales_df = pd.read_csv(sales_report)
     # Convert columns to string to ensure proper formatting handling
     sales_df['Units Ordered'] = sales_df['Units Ordered'].astype(str)
@@ -59,9 +84,31 @@ def render_sales_df(sales_report):
 
     return aggregated_df
 
+def is_txt_file(file_path: str) -> bool:
+    '''
+    Check if the given file path is a TXT file.
+    
+    Parameters:
+    file_path (str): The file path to check.
+    
+    Returns:
+    bool: True if the file exists and has a .txt extension, False otherwise.
+    '''
+    # Check if file exists
+    if not os.path.isfile(file_path):
+        return False
+
+    # Check if file has a .txt extension
+    if not file_path.lower().endswith('.txt'):
+        return False
+
+    return True
 
 
 def render_sku_df(all_listings_report):
+
+    if not is_txt_file(all_listings_report):
+        raise RuntimeError("[X] All Listings Report needs to be a .txt file!")
     # Get Product Listing Data and Drop unwanted columns
     sku_df = pd.read_csv(all_listings_report, delimiter='\t')
     # Rename columns to match with sales_df for merge actions
@@ -78,6 +125,17 @@ def render_sku_df(all_listings_report):
 
     
     return sku_df
+
+
+def get_file_path(prompt):
+    '''
+    Dialog box to support file input from user
+    '''
+    root = tk.Tk()
+    root.withdraw()  # Hide the root window
+    file_path = filedialog.askopenfilename(title=prompt)
+    return file_path
+
 
 
 if __name__ == "__main__":
