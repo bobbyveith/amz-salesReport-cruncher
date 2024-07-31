@@ -1,6 +1,7 @@
 from typing import List, Dict, Tuple
 import pandas as pd
 import os
+import io
 from pathlib import Path
 
 
@@ -70,19 +71,21 @@ def aggregate_sales_data(product_list: List[Dict]) -> Tuple[Dict[str, Dict[str, 
 
 def write_dicts_to_xlsx(data: Tuple[Dict, Dict]):
     """
-    Writes two dictionaries to an xlsx file where each dictionary is written to its own sheet.
+    Writes two dictionaries to an in-memory xlsx file where each dictionary is written to its own sheet.
 
     Parameters:
     data (Tuple[Dict, Dict]): A tuple containing two dictionaries.
-    filename (str): The name of the output xlsx file.
+
+    Returns:
+    bytes: The content of the xlsx file as bytes.
     """
     sales_by_prefix, sales_by_suffix = data
-    # Set filename to a path on the Desktop
-    desktop_path = get_desktop_path()
-    filename = desktop_path / 'sales_data.xlsx'
+
+    # Create an in-memory buffer
+    output = io.BytesIO()
 
     # Create a Pandas Excel writer using Openpyxl as the engine
-    with pd.ExcelWriter(filename, engine='openpyxl') as writer:
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
         # Convert the dictionaries to DataFrames
         df_prefix = pd.DataFrame.from_dict(sales_by_prefix, orient='index')
         df_suffix = pd.DataFrame.from_dict(sales_by_suffix, orient='index')
@@ -91,14 +94,21 @@ def write_dicts_to_xlsx(data: Tuple[Dict, Dict]):
         df_prefix.to_excel(writer, sheet_name='Sales by Prefix')
         df_suffix.to_excel(writer, sheet_name='Sales by Suffix')
 
+    # Get the xlsx file content as bytes
+    output.seek(0)
+    xlsx_data = output.read()
+
+    return xlsx_data
+
 
 def render_sales_data(product_list, TEST_MODE):
     aggrigated_data = aggregate_sales_data(product_list)
-    write_dicts_to_xlsx(aggrigated_data)
+    xlsx_data = write_dicts_to_xlsx(aggrigated_data)
 
     if TEST_MODE:
         return True
-    raise RuntimeError("[X] Warning: System run on dev mode")
+    else:
+        return xlsx_data
     
         
     

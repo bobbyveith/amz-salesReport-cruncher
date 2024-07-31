@@ -6,37 +6,24 @@ import extract, transform, load
 
 # True when testing
 TEST_MODE = False
-# True if use local test files rather than API Call for data
-LOCAL_RUN = False
 
-#Ingest AMZ Report CSV & convert to dataframe
-if TEST_MODE or LOCAL_RUN:
-    AMAZON_REPORT = "./test_inputs/Sales Report.csv"
-    ALL_LISTINGS_REPORT = "./test_inputs/All Listings Report.txt"
-else:
-    AMAZON_REPORT = extract.get_file_path("Select the Amazon Sales Report (.csv)")
-    ALL_LISTINGS_REPORT = extract.get_file_path("Select the Amazon All Listings Report (.txt)")
+def main(sales_report, listings_report):
 
 
-def main():
-
-    sales_df = extract.render_sales_df(AMAZON_REPORT)
-    sku_df = extract.render_sku_df(ALL_LISTINGS_REPORT)
+    sales_df = extract.render_sales_df(sales_report)
+    sku_df = extract.render_sku_df(listings_report)
 
     # Combine data from sales_df and sku_df based on child ASIN
     full_df = transform.combine_data(TEST_MODE, sales_df=sales_df, sku_df=sku_df)
     # Render a csv for working review
 
     product_objects: List = transform.list_products(full_df, TEST_MODE)
-    success = load.render_sales_data(product_objects, TEST_MODE)
+    xlsx_data = load.render_sales_data(product_objects, TEST_MODE)
 
-    if success:
-        print('Program Ran Successfully!')
-    else:
-        print("Some Issue Somewhere")
+    return xlsx_data
 
     
 
 
 if __name__ == "__main__":
-    main()
+    print("[X] This module is in lambda branch and should not be run directly!")
