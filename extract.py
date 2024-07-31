@@ -1,7 +1,4 @@
 import pandas as pd
-import tkinter as tk
-from tkinter import filedialog
-
 import os
 
 
@@ -125,17 +122,6 @@ def render_sku_df(all_listings_report):
 
     
     return sku_df
-
-
-def get_file_path(prompt):
-    '''
-    Dialog box to support file input from user
-    '''
-    root = tk.Tk()
-    root.withdraw()  # Hide the root window
-    file_path = filedialog.askopenfilename(title=prompt)
-    return file_path
-
 
 
 if __name__ == "__main__":
