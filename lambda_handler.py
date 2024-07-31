@@ -25,9 +25,15 @@ def lambda_handler(event, context):
             'body': json.dumps('Both csvFile and txtFile must be provided')
         }
 
-    # Process the CSV and TXT data
-    # Here is where you would pass the data to your processing module
-    xlsx_data = main(csv_file, txt_file)
+    try:
+        # Process the CSV and TXT data
+        # Pass the raw data to your processing function
+        xlsx_data = main(csv_file, txt_file)
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps(f'Error processing data: {str(e)}')
+        }
 
     # Return the XLSX file as a response
     return {
