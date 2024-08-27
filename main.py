@@ -5,14 +5,16 @@ from typing import List
 import extract, transform, load
 
 # True when testing
-TEST_MODE = False
+TEST_MODE = True
 # True if use local test files rather than API Call for data
 LOCAL_RUN = False
 
 #Ingest AMZ Report CSV & convert to dataframe
 if TEST_MODE or LOCAL_RUN:
-    AMAZON_REPORT = "./test_inputs/Sales Report.csv"
-    ALL_LISTINGS_REPORT = "./test_inputs/All Listings Report.txt"
+    #AMAZON_REPORT = "./test_inputs/Sales Report.csv"
+    AMAZON_REPORT = "/Users/bobbyveith/Downloads/BusinessReport-8-27-24.csv"
+    #ALL_LISTINGS_REPORT = "./test_inputs/All Listings Report.txt"
+    ALL_LISTINGS_REPORT = "/Users/bobbyveith/Downloads/Active+Listings+Report+08-27-2024.txt"
 else:
     AMAZON_REPORT = extract.get_file_path("Select the Amazon Sales Report (.csv)")
     ALL_LISTINGS_REPORT = extract.get_file_path("Select the Amazon All Listings Report (.txt)")

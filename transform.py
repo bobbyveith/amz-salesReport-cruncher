@@ -43,7 +43,7 @@ def row_to_product_object(row) -> Product:
         seller_sku = row.get('seller-sku')
 
         # Dropping records that fail criteria
-        if pd.isna(units_sold) or units_sold == 0.0 or seller_sku[:2] not in target_sku_prefixes.keys():
+        if pd.isna(units_sold) or units_sold == 0.0 or not isinstance(seller_sku, str) or seller_sku[:2] not in target_sku_prefixes.keys():
             return True
         return False
     
